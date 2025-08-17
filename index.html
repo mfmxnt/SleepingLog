@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uber Driver Sleep Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sleep Tracker</h1>
+        
+        <div class="current-status">
+            <h2>Current Status</h2>
+            <div id="awake-time">Awake for: 0 hours 0 minutes</div>
+            <div id="last-sleep">Last sleep: Not recorded yet</div>
+        </div>
+        
+        <div class="controls">
+            <button id="sleep-btn">Start Sleeping</button>
+            <button id="wake-btn" disabled>Wake Up</button>
+            <button id="nap-btn">Log Nap</button>
+        </div>
+        
+        <div class="stats">
+            <h2>Sleep Averages</h2>
+            <div id="avg-1week">1-week average: -</div>
+            <div id="avg-2week">2-week average: -</div>
+            <div id="avg-3week">3-week average: -</div>
+        </div>
+        
+        <div class="history">
+            <h2>Sleep History</h2>
+            <table id="sleep-history">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
