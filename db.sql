@@ -1,0 +1,1 @@
+INSERT INTO sleep (sleep_start, wake_up) VALUES ('2023-11-25 23:30:00', '2023-11-26 07:15:00');

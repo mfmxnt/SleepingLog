@@ -1,75 +1,35 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const db = require('./database');
+const db = require('./db');
 const app = express();
 const PORT = 3000;
 
-app.use(bodyParser.json());
+// Middleware to serve static files and handle JSON
 app.use(express.static('public'));
+app.use(express.json());
 
-// Add a new sleep session
-app.post('/api/sleep', (req, res) => {
-  const { start_time, end_time, is_nap } = req.body;
-  const duration = (new Date(end_time) - new Date(start_time)) / (1000 * 60 * 60);
-  
-  db.run(
-    `INSERT INTO sleep_sessions (start_time, end_time, is_nap, duration_hours) 
-     VALUES (?, ?, ?, ?)`,
-    [start_time, end_time, is_nap ? 1 : 0, duration],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({
-        id: this.lastID,
-        start_time,
-        end_time,
-        is_nap,
-        duration_hours: duration
-      });
-    }
-  );
-});
-
-// Get all sleep sessions
+// API endpoint to get sleep data
 app.get('/api/sleep', (req, res) => {
-  db.all("SELECT * FROM sleep_sessions ORDER BY end_time DESC", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+  db.all(`
+    SELECT 
+      id,
+      datetime(sleep_start) as sleep_start,
+      datetime(wake_up) as wake_up,
+      duration
+    FROM sleep 
+    ORDER BY wake_up DESC
+  `, [], (err, rows) => {
+    if (err) {
+      console.error('Database error:', err.message);
+      return res.status(500).json({ error: 'Failed to fetch sleep records' });
+    }
     res.json(rows);
   });
 });
 
-// Get sleep averages
-app.get('/api/sleep/averages', (req, res) => {
-  const queries = {
-    week1: `SELECT AVG(duration_hours) as avg FROM sleep_sessions 
-            WHERE is_nap = 0 AND end_time >= datetime('now', '-7 days')`,
-    week2: `SELECT AVG(duration_hours) as avg FROM sleep_sessions 
-            WHERE is_nap = 0 AND end_time >= datetime('now', '-14 days')`,
-    week3: `SELECT AVG(duration_hours) as avg FROM sleep_sessions 
-            WHERE is_nap = 0 AND end_time >= datetime('now', '-21 days')`,
-    lastSession: `SELECT end_time FROM sleep_sessions 
-                  ORDER BY end_time DESC LIMIT 1`
-  };
-
-  db.serialize(() => {
-    const results = {};
-    
-    db.get(queries.week1, [], (err, row) => {
-      results.week1 = row ? row.avg : 0;
-    });
-    
-    db.get(queries.week2, [], (err, row) => {
-      results.week2 = row ? row.avg : 0;
-    });
-    
-    db.get(queries.week3, [], (err, row) => {
-      results.week3 = row ? row.avg : 0;
-    });
-    
-    db.get(queries.lastSession, [], (err, row) => {
-      results.lastEndTime = row ? row.end_time : null;
-      res.json(results);
-    });
-  });
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
 app.listen(PORT, () => {
