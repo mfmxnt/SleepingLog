@@ -38,6 +38,7 @@ function initializeDatabase() {
 }
 
 function insertSampleData() {
+  
   const sampleData = [
     ['2023-11-01 23:00:00', '2023-11-02 07:30:00'],
     ['2023-11-02 22:45:00', '2023-11-03 06:45:00'],
